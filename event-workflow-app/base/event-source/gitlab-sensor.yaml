@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: webhook
+  namespace: argo-events
+spec:
+  template:
+    serviceAccountName: operate-workflow-sa
+  dependencies:
+  - name: gitlab
+    eventSourceName: gitlab
+    eventName: device-connector-app
+  triggers:
+  - template:
+      name: gitlab-webhook-trigger
+      argoWorkflow:
+        group: argoproj.io
+        version: v1alpha1
+        resource: workflows
+        operation: submit
+        source:
+          resource:
+            apiVersion: argoproj.io/v1alpha1
+            kind: Workflow
+            metadata:
+              generateName: device-connetors-
+              namespace: workflows
+            spec:
+              serviceAccountName: workflow
+              workflowTemplateRef:
+                name: device-connector-workflow
+                  

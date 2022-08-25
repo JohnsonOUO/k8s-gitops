@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: activity
+  namespace: production
+spec:
+  selector:
+    matchLabels:
+      app: myapp
+      type: activity
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: myapp
+        type: activity
+    spec:
+      containers:
+      - name: activity
+        image: 10.20.0.70:32443/library/activity-service:0.1-SNAPSHOT
+        imagePullPolicy: "Always"
+        ports:
+        - containerPort: 3001
+        - containerPort: 6001
+        env: 
+          - name: ENV_TYPE
+            value: production
+#      imagePullSecrets:
+#      - name: harbor-registry-secret

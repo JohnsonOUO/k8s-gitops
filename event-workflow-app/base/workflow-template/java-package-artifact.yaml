@@ -1,0 +1,44 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: java-compile-package
+spec:
+  artifactRepositoryRef:
+    configMap: artifact-repositories
+    key: default-v1
+  templates:
+  - name: compile-package
+    inputs:
+      parameters:
+      - name: service
+      artifacts:
+      - name: gitsource
+        path: /src/
+        git:
+          repo: http://10.20.0.70:32080/root/device-homeomorphisx.git
+          usernameSecret:
+            name: github-access
+            key: user
+          passwordSecret:
+            name: github-access
+            key: token
+    container:
+      image: maven:3.8.4-openjdk-11
+      command: [/usr/bin/mvn]
+      args:
+      - -Dmaven.repo.local=/var/maven
+      - -Dmaven.test.skip=true
+      - package
+      - install:install-file
+      - -Dfile={{inputs.parameters.service}}/target/{{inputs.parameters.service}}-1.0-SNAPSHOT-all.jar
+      - -DgroupId=org.ninox
+      - -DartifactId={{inputs.parameters.service}}
+      - -Dversion=1.0-SNAPSHOT
+      - -Dpackaging=jar
+      - -pl={{inputs.parameters.service}}
+      - -am
+      - -DlocalRepositoryPath=/var/maven
+      volumeMounts:
+        - name: maven-repo
+          mountPath: /var/maven
+      workingDir: /src

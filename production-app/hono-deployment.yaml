@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hono
+  namespace: production
+spec:
+  selector:
+    matchLabels:
+      app: myapp
+      type: hono
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: myapp
+        type: hono
+    spec:
+      containers:
+      - name: hono
+        image: 10.20.0.70:32443/library/hono-service:0.1-SNAPSHOT
+        imagePullPolicy: "Always"
+        ports:
+        - containerPort: 3002
+        env: 
+          - name: ENV_TYPE
+            value: production
+#      imagePullSecrets:
+#      - name: harbor-registry-secret

@@ -1,0 +1,17 @@
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: harbor-registry-secret
+  namespace: workflows
+spec:
+  encryptedData:
+    .dockerconfigjson: AgCURLmvI+lVoNEdK72Y3Y3ajVlCJ5dhlCuZVeoxvF1G4FhtuH40fxoGhx7ilutMq9H77oQvrDHKK3cddSt+Tso86o1cB8Qc1nmWq/LTAm0TJDBTtq/6CwsZMJIqq7I83VvjeMDt5OKnu+oI16b+yeJv70bFzirg+WHiQvVjKLjY4kgH7e3P4kPuUbIAQeVtxO+SMGbWhnWIlS5ESk8wEVFxREWJP/UzsALET51TwDzCsN0l+KM3dYQO0unzdFp9yUJuS86mvhpbOE5P8OVyCZgPZJaQAnsS5D51/g+k+RNNU4ouMUQwEMzyulRePIh/6/Q4+86eIETDrQVb0bN1W/rVoBb87DSCigAPRokJ0tSn4CgD7ek4BgJhOXkcUM9GLHgPDoA9VpQ0MWWVLeLfAXtzoIRLXfAQYtZn2C0ZM3rkK/RpQYAIcvW4uY5HeI8dgTMFaEqb7MzcYAMkxkwGNdv1WgDSxHVyghTcsEjepg99LoplEtSoXLJY032M2Gg2O358kSyO8bGrFBLlwQBNEJljfBdtSJg1+rRIL+xLmV9799FmjGDi4xC1USYoxeg13KeH1z21a1vXmfaPjN2Eyk0T91LqLwMCiXrL9PGP1o+rBS66WNXsMkiEooGwREkIy84eUrhif+Si4E9eUi3AzAJ8FqYiJPfjBaDNADYaMWQ/jZ+QoWNVOFJ5IoMy9IefPDnlvo66iMP3LI24dgEWJmu3cLEZrUIpQcehU2MjoLF5Jeu0j0WLh/RULAYq3Zw/3QaDj/jb85LGA7qviVeU1LV2R9zH9cvtqhLYzArtCp6xHcJPESPLs8b59t/vCJiuzsBOoiXF+yNRout4HWGP5P1CL60/XsoSwhpWt9vcqQYSt18JirZWgGNwNojVQuCuEMsUpOlB1qKg
+  template:
+    data: null
+    metadata:
+      creationTimestamp: null
+      name: harbor-registry-secret
+      namespace: workflows
+    type: kubernetes.io/dockerconfigjson
+

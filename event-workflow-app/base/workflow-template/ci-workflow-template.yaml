@@ -1,0 +1,234 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: device-connector-workflow
+  namespace: workflows
+spec:
+  entrypoint: pipeline
+  volumes:
+  - name: dind-storage
+    emptyDir: {}
+  - name: dind-socket
+    emptyDir: {}
+  - name: maven-repo
+    persistentVolumeClaim:
+      claimName: maven-artifact-pvc
+  - name: kaniko-secret
+    secret:
+      secretName: harbor-registry-secret
+      items:
+        - key: .dockerconfigjson
+          path: config.json
+  templates:
+  - name: pipeline
+    dag:
+      tasks:
+      - name: build-and-test-hono
+        templateRef:
+          name: java-compile-test
+          template: compile-test
+          clusterScope: true
+        arguments:
+          parameters:
+            - name: service
+              value: hono-service
+      - name: package-hono
+        depends: "build-and-test-hono"
+        templateRef:
+          name: java-compile-package
+          template: compile-package
+          clusterScope: true
+        arguments:
+          parameters:
+            - name: service
+              value: hono-service
+      - name: build-image-hono
+        depends: "package-hono"
+        templateRef:
+          name: container-image
+          template: build-kaniko-git
+          clusterScope: true
+        arguments:
+          parameters:
+            - name: app_repo
+              value: http://10.20.0.70:32080/root/device-homeomorphisx.git
+            - name: service
+              value: hono-service
+            - name: container_image
+              value: 10.20.0.70:32443/library/hono-service
+            - name: container_tag
+              value: 0.1-SNAPSHOT
+      - name: build-and-test-observability
+        templateRef:
+          name: java-compile-test
+          template: compile-test
+          clusterScope: true
+        arguments:
+          parameters:
+            - name: service
+              value: observability-connector-service
+      - name: package-observability
+        depends: "build-and-test-observability"
+        templateRef:
+          name: java-compile-package
+          template: compile-package
+          clusterScope: true
+        arguments:
+          parameters:
+            - name: service
+              value: observability-connector-service
+      - name: build-image-observability
+        depends: "package-observability"
+        templateRef:
+          name: container-image
+          template: build-kaniko-git
+          clusterScope: true
+        arguments:
+          parameters:
+            - name: service
+              value: observability-connector-service
+            - name: container_image
+              value: 10.20.0.70:32443/library/observability-connector
+            - name: container_tag
+              value: 0.1-SNAPSHOT
+      - name: build-and-test-identity
+        templateRef:
+          name: java-compile-test
+          template: compile-test
+          clusterScope: true
+        arguments:
+          parameters:
+            - name: service
+              value: identity-access-control-service
+      - name: package-identity
+        depends: "build-and-test-identity"
+        templateRef:
+          name: java-compile-package
+          template: compile-package
+          clusterScope: true
+        arguments:
+          parameters:
+            - name: service
+              value: identity-access-control-service
+      - name: build-image-identity
+        depends: "package-identity"
+        templateRef:
+          name: container-image
+          template: build-kaniko-git
+          clusterScope: true
+        arguments:
+          parameters:
+            - name: service
+              value: identity-access-control-service
+            - name: container_image
+              value: 10.20.0.70:32443/library/iam-service
+            - name: container_tag
+              value: 0.1-SNAPSHOT
+      - name: build-and-test-device
+        templateRef:
+          name: java-compile-test
+          template: compile-test
+          clusterScope: true
+        arguments:
+          parameters:
+            - name: service
+              value: device-simulator
+      - name: package-device
+        depends: "build-and-test-device"
+        templateRef:
+          name: java-compile-package
+          template: compile-package
+          clusterScope: true
+        arguments:
+          parameters:
+            - name: service
+              value: device-simulator
+      - name: build-and-test-activity
+        templateRef:
+          name: java-compile-test
+          template: compile-test
+          clusterScope: true
+        arguments:
+          parameters:
+            - name: service
+              value: activity-service
+      - name: package-activity
+        depends: "build-and-test-activity"
+        templateRef:
+          name: java-compile-package
+          template: compile-package
+          clusterScope: true
+        arguments:
+          parameters:
+            - name: service
+              value: activity-service
+      - name: build-image-activity
+        depends: "package-activity"
+        templateRef:
+          name: container-image
+          template: build-kaniko-git
+          clusterScope: true
+        arguments:
+          parameters:
+            - name: service
+              value: activity-service
+            - name: container_image
+              value: 10.20.0.70:32443/library/activity-service
+            - name: container_tag
+              value: 0.1-SNAPSHOT
+      - name: build-and-test-gateway
+        templateRef:
+          name: java-compile-test
+          template: compile-test
+          clusterScope: true
+        arguments:
+          parameters:
+            - name: service
+              value: gateway-api
+      - name: package-gateway
+        depends: "build-and-test-gateway"
+        templateRef:
+          name: java-compile-package
+          template: compile-package
+          clusterScope: true
+        arguments:
+          parameters:
+            - name: service
+              value: gateway-api
+      - name: build-image-gateway
+        depends: "package-gateway"
+        templateRef:
+          name: container-image
+          template: build-kaniko-git
+          clusterScope: true
+        arguments:
+          parameters:
+            - name: service
+              value: gateway-api
+            - name: container_image
+              value: 10.20.0.70:32443/library/gateway-api
+            - name: container_tag
+              value: 0.1-SNAPSHOT
+      - name: package-webapp
+        templateRef:
+          name: java-compile-package
+          template: compile-package
+          clusterScope: true
+        arguments:
+          parameters:
+            - name: service
+              value: user-webapp
+      - name: build-image-webapp
+        depends: "package-webapp"
+        templateRef:
+          name: container-image
+          template: build-kaniko-git
+          clusterScope: true
+        arguments:
+          parameters:
+            - name: service
+              value: user-webapp
+            - name: container_image
+              value: 10.20.0.70:32443/library/user-webapp
+            - name: container_tag
+              value: 0.1-SNAPSHOT

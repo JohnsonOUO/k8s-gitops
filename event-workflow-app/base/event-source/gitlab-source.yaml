@@ -1,0 +1,42 @@
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: gitlab
+  namespace: argo-events
+spec:
+  gitlab:
+    device-connector-app:
+      projects:
+        - "root/device-homeomorphisx"
+      webhook:
+        endpoint: /
+        port: "12000"
+        method: POST
+        url: http://10.20.0.70:31001
+      events:
+        - PushEvents
+      accessToken:
+        name: github-access
+        key: token
+      secretToken:
+        name: github-access
+        key: token
+      enableSSLVerification: false
+      gitlabBaseURL: http://10.20.0.70:32080
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: gitlab-webhook-eventsource
+  namespace: argo-events
+spec:
+  ports:
+  - port: 12000
+    protocol: TCP
+    targetPort: 12000
+    nodePort: 31001
+  selector:
+    eventsource-name: gitlab
+  type: NodePort

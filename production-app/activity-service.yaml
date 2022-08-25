@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: activity-service
+  namespace: production
+spec:
+  selector:
+    app: myapp
+    type: activity
+  type: NodePort
+  ports:
+  - name: activity
+    port: 3001
+    targetPort: 3001
+    nodePort: 31603
+  - name: devicesync
+    port: 6001
+    targetPort: 6001
+    nodePort: 31602

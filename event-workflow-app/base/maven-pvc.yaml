@@ -1,0 +1,12 @@
+ kind: PersistentVolumeClaim
+ apiVersion: v1
+ metadata:
+   name: maven-artifact-pvc
+   namespace: workflows
+ spec:
+   storageClassName: iiidevops-nfs-storage
+   accessModes:
+     - ReadWriteOnce
+   resources:
+     requests:
+       storage: 20Gi

@@ -1,0 +1,55 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: java-compile-test
+spec:
+  artifactRepositoryRef:
+    configMap: artifact-repositories
+    key: default-v1
+  templates:
+  - name: compile-test
+    inputs:
+      parameters:
+      - name: service
+      artifacts:
+      - name: gitsource
+        path: /src/
+        git:
+          repo: http://10.20.0.70:32080/root/device-homeomorphisx.git
+          usernameSecret:
+            name: github-access
+            key: user
+          passwordSecret:
+            name: github-access
+            key: token
+    sidecars:
+    - name: dind 
+      image: docker:20.10.12-dind
+      securityContext:
+        privileged: true
+      env:
+        - name: ENV_TYPE
+          value: dev
+      mirrorVolumeMounts: true
+    container:
+      image: maven:3.8.4-openjdk-11
+      command: [/usr/bin/mvn]
+      args:
+      - -Dmaven.repo.local=/var/maven
+      - test
+      - -DfailIfNoTests=false
+      - -pl={{inputs.parameters.service}}
+      - -am
+      env:
+        - name: DOCKER_HOST
+          value: tcp://localhost:2376
+        - name: ENV_TYPE
+          value: dev
+      volumeMounts:
+        - name: dind-storage
+          mountPath: /var/lib/docker
+        - name: dind-socket
+          mountPath: /var/run/
+        - name: maven-repo
+          mountPath: /var/maven
+      workingDir: /src

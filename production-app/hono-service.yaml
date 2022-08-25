@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: hono-service
+  namespace: production
+spec:
+  selector:
+    app: myapp
+    type: hono
+  type: NodePort
+  ports:
+  - port: 3002
+    targetPort: 3002
+    nodePort: 31604

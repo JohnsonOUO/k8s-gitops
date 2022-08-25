@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: observability-connector
+  namespace: production
+spec:
+  selector:
+    matchLabels:
+      app: myapp
+      type: observability
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: myapp
+        type: observability
+    spec:
+      containers:
+      - name: observability
+        image: 10.20.0.70:32443/library/observability-connector:0.1-SNAPSHOT
+        imagePullPolicy: "Always"
+        env: 
+          - name: ENV_TYPE
+            value: production
+#      imagePullSecrets:
+#      - name: harbor-registry-secret

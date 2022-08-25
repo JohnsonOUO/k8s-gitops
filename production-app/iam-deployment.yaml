@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: identity-access-control
+  namespace: production
+spec:
+  selector:
+    matchLabels:
+      app: myapp
+      type: iam
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: myapp
+        type: iam
+    spec:
+      containers:
+      - name: observability
+        image: 10.20.0.70:32443/library/iam-service:0.1-SNAPSHOT
+        imagePullPolicy: "Always"
+        ports:
+        - containerPort: 3000
+        env: 
+          - name: ENV_TYPE
+            value: production
+#      imagePullSecrets:
+#      - name: harbor-registry-secret
